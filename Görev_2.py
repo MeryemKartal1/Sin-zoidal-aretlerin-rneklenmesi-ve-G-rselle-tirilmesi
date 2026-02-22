@@ -1,57 +1,106 @@
 import numpy as np
+
+import tkinter as tk
+
 import matplotlib.pyplot as plt
 
-# 1. Parametrelerin Belirlenmesi [cite: 13, 21]
-f0 = 128  
+import sounddevice as sd
+ 
+# DTMF frekans tablosu
 
-f1 = f0
-f2 = f0 / 2
-f3 = 10 * f0
+dtmf = {
 
-# Örnekleme frekansı Nyquist kriterine (fs > 2*f3) uygun seçilmeli 
-fs = 100 * f0 
+    "1": (697, 1209), "2": (697, 1336), "3": (697, 1477), "A": (697, 1633),
 
-# 2. Zaman Dizileri ve Sinyal Üretimi
-# HATA DÜZELTMESİ: 2*np.pi*f*t şeklinde aralara '*' koyulmalıdır
-t1 = np.arange(0, 3/f1, 1/fs)
-x1 = np.sin(2 * np.pi * f1 * t1)
+    "4": (770, 1209), "5": (770, 1336), "6": (770, 1477), "B": (770, 1633),
 
-t2 = np.arange(0, 3/f2, 1/fs)
-x2 = np.sin(2 * np.pi * f2 * t2)
+    "7": (852, 1209), "8": (852, 1336), "9": (852, 1477), "C": (852, 1633),
 
-t3 = np.arange(0, 3/f3, 1/fs)
-x3 = np.sin(2 * np.pi * f3 * t3)
+    "*": (941, 1209), "0": (941, 1336), "#": (941, 1477), "D": (941, 1633),
 
-# Toplam İşaret İçin Zaman Dizisi [cite: 29]
-# En az 3 tam periyot görünmesi için en büyük periyoda (en küçük frekans olan f2) göre ayarlandı [cite: 27, 28]
-t_max = 3 / f2 
-t_sum = np.arange(0, t_max, 1/fs)
-xs = (np.sin(2 * np.pi * f1 * t_sum) +
-      np.sin(2 * np.pi * f2 * t_sum) +
-      np.sin(2 * np.pi * f3 * t_sum))
+}
+ 
+fs = 8000  # örnekleme frekansı
 
-# 3. Görselleştirme (Subplot) [cite: 26]
-plt.figure(figsize=(8, 12))
+duration = 0.5  # saniye
+ 
+ 
+def generate_tone(low, high):
 
-plt.subplot(4, 1, 1)
-plt.plot(t1, x1)
-plt.title(f"f1 = {f1} Hz")
-plt.grid(True)
+    t = np.linspace(0, duration, int(fs * duration), endpoint=False)
 
-plt.subplot(4, 1, 2)
-plt.plot(t2, x2)
-plt.title(f"f2 = {f2} Hz")
-plt.grid(True)
+    signal = np.sin(2 * np.pi * low * t) + np.sin(2 * np.pi * high * t)
 
-plt.subplot(4, 1, 3)
-plt.plot(t3, x3)
-plt.title(f"f3 = {f3} Hz")
-plt.grid(True)
+    signal = signal / np.max(np.abs(signal))
 
-plt.subplot(4, 1, 4)
-plt.plot(t_sum, xs)
-plt.title("Toplam İşaret (f1 + f2 + f3)")
-plt.grid(True)
+    return t, signal
+ 
+ 
+def play_and_plot(key):
 
-plt.tight_layout()
-plt.show()
+    low, high = dtmf[key]
+
+    t, signal = generate_tone(low, high)
+ 
+    # sesi çal
+
+    sd.play(signal, fs)
+ 
+    # grafiği çiz
+
+    plt.figure(figsize=(6, 3))
+
+    plt.plot(t[:400], signal[:400])
+
+    plt.title(f"Tuş: {key} ({low}Hz + {high}Hz)")
+
+    plt.xlabel("Zaman (s)")
+
+    plt.ylabel("Genlik")
+
+    plt.grid(True)
+
+    plt.show()
+ 
+ 
+# GUI
+
+root = tk.Tk()
+
+root.title("DTMF Telefon Tuş Takımı")
+ 
+buttons = [
+
+    ["1", "2", "3", "A"],
+
+    ["4", "5", "6", "B"],
+
+    ["7", "8", "9", "C"],
+
+    ["*", "0", "#", "D"],
+
+]
+ 
+for r, row in enumerate(buttons):
+
+    for c, key in enumerate(row):
+
+        btn = tk.Button(
+
+            root,
+
+            text=key,
+
+            width=6,
+
+            height=3,
+
+            command=lambda k=key: play_and_plot(k),
+
+        )
+
+        btn.grid(row=r, column=c, padx=5, pady=5)
+ 
+root.mainloop()
+
+ 
