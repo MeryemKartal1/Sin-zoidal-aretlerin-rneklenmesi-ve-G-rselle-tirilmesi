@@ -15,8 +15,8 @@ Proje Özeti
   Seçilen tuşlara ait işaretler zaman düzleminde çizdirilmiş ve genlikleri (-1, 1) aralığına normalize edilmiştir.
 
 Kullanılan Araçlar
-Dil: Python
-Kütüphaneler: NumPy (Hesaplama), Matplotlib (Görselleştirme)
+-Dil: Python
+-Kütüphaneler: NumPy (Hesaplama), Matplotlib (Görselleştirme)
 
 Dosya Yapısı
 Görev_1.py: Sinüzoidal sinyal üretimi ve örnekleme analizi.
