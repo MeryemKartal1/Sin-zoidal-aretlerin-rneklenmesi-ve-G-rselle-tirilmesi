@@ -12,7 +12,6 @@ f3 = 10 * f0
 fs = 100 * f0 
 
 # 2. Zaman Dizileri ve Sinyal Üretimi
-# HATA DÜZELTMESİ: 2*np.pi*f*t şeklinde aralara '*' koyulmalıdır
 t1 = np.arange(0, 3/f1, 1/fs)
 x1 = np.sin(2 * np.pi * f1 * t1)
 
